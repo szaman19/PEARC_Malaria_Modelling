@@ -40,7 +40,7 @@ def Immune_Villagers ( i, iV, sV, irV, drV ) :
 #     - Deaths of currently healthy Mosquitoes
 #     - Infected in this time step
 def Healthy_Mosquitoes ( i, V, sV, M, hM, brM, drM, brfM ) :
-    hM[i+1] = (1 + brM - drM -brfM*(sV[i]/V[i]))*hM[i]
+    hM[i+1] = (1 - drM-brfM*(sV[i]/V[i]))*hM[i] + ( brM  ) * M[i]
     
 
 # TODO: Update current infected Mosquitoes
@@ -55,7 +55,7 @@ def sim(params):
 	# Model parameters
 	time_step = 1          # simulation time step in days
 	start_time = params['start_time']        # in days
-	end_time = params['end_time']*2         # in days
+	end_time = params['end_time']        # in days
 	start_hM = params['hM']         # starting number of healthy Mosquitoes 
 	start_iM = params['iM']          # starting number of infected Mosquitoes 
 	start_hV = params['hV']      # starting number of healthy Villagers
@@ -102,7 +102,11 @@ def sim(params):
 	hM[0] = start_hM
 	iM[0] = start_iM
 	M[0] = start_hM + start_iM      # Total mosquito population
+
+	death_count = [0]*(N+1)
 	for i in range(N):
+	    if(i < 80 or i > 200):
+	    	brM = params['brM'] * 4
 	    t[i+1] = t[i] + time_step
 	    
 	    Healthy_Villagers ( i, hV, sV, brV, drV, rrV, M, iM, brfM )
@@ -114,26 +118,30 @@ def sim(params):
 	    Healthy_Mosquitoes ( i, V, sV, M, hM, brM, drM, brfM )
 	    
 	    Infected_Mosquitoes ( i, V, sV, hM, iM, drM, brfM )
+
+
 	    
 	    # Update current total humans
-	    V[i+1] = hV[i]+ sV[i] + iV[i]    
+	    V[i+1] = hV[i]+ sV[i] + iV[i]
+	    death_count[i+1] = drV*(sV[i]+hV[i]+iV[i]) + sV[i]*midrV + death_count[i]
 	    
 	    # Update current total mosquitoes    
 	    M[i+1] = hM[i] + iM[i]
 
-	return t, hV, sV, iV, hM, iM
+
+	return t, hV, sV, iV, hM, iM, death_count
 
 def main():
 	colors= ['r','b','g', 'm']
 	plt.figure()
-	for i in range(4):
+	for i in range(1):
 		params = {}
 		params['start_time'] = 1      # in days
-		params['end_time'] = 365         # in days
-		params['hM'] = 1000     # starting number of healthy Mosquitoes 
-		params['iM'] = 1000      # starting number of infected Mosquitoes 
-		params['hV'] = 1000- (250*(i+1))   # starting number of healthy Villagers
-		params['sV'] = 25*(i+1)       # starting number of sick Villagers
+		params['end_time'] =730        # in days
+		params['hM'] = 5000   # starting number of healthy Mosquitoes 
+		params['iM'] = 1000     # starting number of infected Mosquitoes 
+		params['hV'] = 1000   # starting number of healthy Villagers
+		params['sV'] = 100       # starting number of sick Villagers
 		params['iV'] = 0    # starting number of immune Villagers
 	
 			# Villager rate parameters
@@ -148,15 +156,32 @@ def main():
 		params['drM']  =0.01      # death rate of Mosquitoes
 		params['brfM'] =0.3       # bite rate from Mosquitoes
 
-		t, hV, sV, iV, hM, iM = sim(params)
-		plt.title('Healthy Villagers vs Time')
-		plt.ylabel('Population #100000')
+		t, hV, sV, iV, hM, iM, DC = sim(params)
+		plt.title('Healthy / Sick/ Immune/ Dead Villagers vs Time')
+		plt.ylabel('Population')
+		plt.xlabel('Time (Days)')
+		plt.plot(t,sV, color=colors[i],label =" Sick people" )
+		plt.plot(t,hV,  color=colors[i+1],label = " Healthy People" )
+		plt.plot(t,iV, color=colors[i+2],label = " Immune people" )
+		plt.plot(t,DC, color='black', label=" Dead People")
+		plt.legend()
+		plt.show()
+		# print("Death Counter: ", DC)
+		plt.figure()
+		plt.title('Healthy/Infected Mosquitoes vs Time')
+		plt.ylabel('Mosquitoes')
 		plt.xlabel('Time (Days)')
 
-		plt.plot(t,sV, t,hV, t, iV, color=colors[i],label = str(i * 25)+" Infected people" )
-	plt.legend()
-	plt.show()
+		plt.plot(t, hM, label = "Healthy Mosquitoes" )
+		plt.plot(t, iM, color="red", label = "Infected Mosquitoes ")
 
+		plt.legend(loc='center right')
 
+		plt.minorticks_on()
+
+		plt.show()
+		
+	
+	# plt.show()
 
 main()		
