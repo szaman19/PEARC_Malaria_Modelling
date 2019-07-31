@@ -105,14 +105,14 @@ def sim(params):
 
 	death_count = [0]*(N+1)
 	for i in range(N):
-	    if(i > 80 and i < 200):
-	    	brM = params['brM'] * 10
-	    	drM = params['drM'] * 7
-	    	brfM = params['brfM'] * 2
-	    else:
-	    	brM = params['brM']
-	    	drM = params['drM'] 
-	    	brfM = params['brfM']
+	    # if(i > 80 and i < 200):
+	    # 	brM = params['brM'] * 10
+	    # 	drM = params['drM'] * 7
+	    # 	brfM = params['brfM'] * 2
+	    # else:
+	    # 	brM = params['brM']
+	    # 	drM = params['drM'] 
+	    # 	brfM = params['brfM']
 
 	    t[i+1] = t[i] + time_step
 	    
@@ -147,16 +147,16 @@ def main():
 	params = {}
 	params['start_time'] = 1      # in days
 	params['end_time'] =730        # in days
-	params['hM'] = 500000   # starting number of healthy Mosquitoes 
-	params['iM'] = 10000     # starting number of infected Mosquitoes 
+	params['hM'] = 5000000   # starting number of healthy Mosquitoes 
+	params['iM'] = 5000000     # starting number of infected Mosquitoes 
 	params['hV'] = 1000   # starting number of healthy Villagers
-	params['sV'] = 100       # starting number of sick Villagers
+	params['sV'] = 200       # starting number of sick Villagers
 	params['iV'] = 0    # starting number of immune Villagers
 	
 			# Villager rate parameters
 	params['brV'] =  0.019       # birth rate of Villagers
 	params['drV'] =  0.008      # death rate of Villagers
-	params['midrV'] = 0.0019986      # malaria induced death rate of Villagers
+	params['midrV'] = 0.019986      # malaria induced death rate of Villagers
 	params['rrV']  = 0.3        # recovery rate of Villagers
 	params['irV']  = 0.01         # immunity rate of Villagers
 
@@ -172,7 +172,7 @@ def main():
 	plt.plot(t,sV, color=colors[i],label =" Sick people" )
 	plt.plot(t,hV,  color=colors[i+1],label = " Healthy People" )
 	plt.plot(t,iV, color=colors[i+2],label = " Immune people" )
-	plt.plot(t,DC, color='black', label=" Dead People")
+	plt.plot(t,DC, color='black', label=" Deaths")
 	plt.legend()
 	plt.show()
 		# print("Death Counter: ", DC)
